@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Model Context Protocol (MCP) server implementation that provides weather information tools. It's a simple MCP server that exposes two weather-related tools via the `@modelcontextprotocol/sdk`.
+This is a Model Context Protocol (MCP) server implementation that provides global weather information tools. It's a simple MCP server that exposes weather-related tools via the `@modelcontextprotocol/sdk`, using the Open-Meteo API for worldwide weather data coverage.
 
 ## Build and Development Commands
 
@@ -24,13 +24,13 @@ The codebase follows a layered architecture pattern, separating concerns into di
 
 ```
 src/
-├── index.ts              # Entry point - transport setup
-├── server.ts             # MCP server configuration and tool registration
-├── types.ts              # Shared TypeScript types and Zod schemas
+├── index.ts                  # Entry point - transport setup
+├── server.ts                 # MCP server configuration and tool registration
+├── types.ts                  # Shared TypeScript types and Zod schemas
 ├── api/
-│   └── nws-client.ts     # NWS API client implementation
+│   └── open-meteo-client.ts  # Open-Meteo API client implementation
 └── tools/
-    └── weather.ts        # Weather tool handlers
+    └── weather.ts            # Weather tool handlers
 ```
 
 ### Layer Responsibilities
@@ -45,20 +45,21 @@ src/
    - Central place to add new tools or resources
 
 3. **Types & Schemas** ([src/types.ts](src/types.ts)):
-   - Zod schemas for input validation (GetAlertsArgsSchema, GetForecastArgsSchema)
-   - TypeScript interfaces for API responses (AlertsResponse, PointsResponse, ForecastResponse)
+   - Zod schemas for input validation (GetCurrentWeatherArgsSchema, GetForecastArgsSchema)
+   - TypeScript interfaces for API responses (OpenMeteoCurrentResponse, OpenMeteoForecastResponse)
    - Type inference from Zod schemas
 
-4. **API Client Layer** ([src/api/nws-client.ts](src/api/nws-client.ts)):
-   - Encapsulates all National Weather Service API interactions
-   - Generic `makeNWSRequest()` helper with proper headers and error handling
-   - Exported functions: `getAlerts()`, `getForecast()`
+4. **API Client Layer** ([src/api/open-meteo-client.ts](src/api/open-meteo-client.ts)):
+   - Encapsulates all Open-Meteo API interactions
+   - Generic `makeOpenMeteoRequest()` helper with error handling
+   - Exported functions: `getCurrentWeather()`, `getForecast()`
    - Returns null on API failures for graceful degradation
 
 5. **Tool Handlers** ([src/tools/weather.ts](src/tools/weather.ts)):
    - Exports `weatherTools` object with tool definitions
    - Each tool has: description, inputSchema (Zod), and async handler
-   - Formatting functions (like `formatAlert()`) for output presentation
+   - Formatting functions (like `formatCurrentWeather()`, `formatForecast()`) for output presentation
+   - Helper functions for WMO weather code interpretation and wind direction conversion
    - Validation and error handling at the tool level
 
 ### MCP Server Pattern
@@ -77,14 +78,17 @@ Each tool in [src/tools/weather.ts](src/tools/weather.ts) follows this structure
 - Async handler function that returns `{ content: [{ type: "text", text: string }] }`
 
 The two weather tools demonstrate common patterns:
-- **get_alerts**: Simple API call with state code parameter
-- **get_forecast**: Two-step API interaction (points → forecast URL → forecast data)
+- **get_current_weather**: Single API call with latitude/longitude and optional temperature unit
+- **get_forecast**: Single API call with latitude/longitude, optional forecast days (1-16), and temperature unit
 
 ### API Integration
 
-Uses the National Weather Service (NWS) API at `https://api.weather.gov`:
-- All requests go through `makeNWSRequest()` helper in [src/api/nws-client.ts](src/api/nws-client.ts)
-- Requires `User-Agent` and `Accept: application/geo+json` headers
+Uses the Open-Meteo API at `https://api.open-meteo.com`:
+- All requests go through `makeOpenMeteoRequest()` helper in [src/api/open-meteo-client.ts](src/api/open-meteo-client.ts)
+- Free and open-source API with no authentication required
+- Global coverage with data from 20+ national weather services
+- Supports current conditions, hourly forecasts, and daily forecasts (up to 16 days)
+- WMO weather codes are converted to human-readable descriptions
 - Centralized error handling returns null on failures
 
 ## Key Design Patterns
@@ -92,8 +96,8 @@ Uses the National Weather Service (NWS) API at `https://api.weather.gov`:
 1. **Layered Architecture**: Clear separation between entry point, server setup, tool handlers, and API clients
 2. **Type Safety**: TypeScript interfaces define API response shapes; Zod schemas validate inputs
 3. **Error Handling**: Graceful degradation - API failures return error messages rather than throwing
-4. **Formatting**: Separate formatting functions (like `formatAlert`) keep tool handlers clean
-5. **Validation**: Zod schemas enforce input constraints (e.g., 2-letter state codes, coordinate ranges)
+4. **Formatting**: Separate formatting functions (like `formatCurrentWeather()`, `formatForecast()`) keep tool handlers clean with emoji-rich, user-friendly output
+5. **Validation**: Zod schemas enforce input constraints (e.g., coordinate ranges, forecast days 1-16, temperature units)
 6. **Single Responsibility**: Each file has one clear purpose, making the codebase easy to extend
 
 ## Adding New Tools
