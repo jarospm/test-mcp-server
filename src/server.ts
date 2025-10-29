@@ -12,10 +12,10 @@ export function createServer(): McpServer {
 
   // Register weather tools
   server.tool(
-    "get_alerts",
-    weatherTools.get_alerts.description,
-    weatherTools.get_alerts.inputSchema,
-    weatherTools.get_alerts.handler
+    "get_current_weather",
+    weatherTools.get_current_weather.description,
+    weatherTools.get_current_weather.inputSchema,
+    weatherTools.get_current_weather.handler
   );
 
   server.tool(
