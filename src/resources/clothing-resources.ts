@@ -12,7 +12,17 @@ import { ResourceDefinition } from "./types.js";
 export const clothingResources: Record<string, ResourceDefinition> = {
   "clothing-recommendations": {
     template: new ResourceTemplate("weather://clothing/{condition}", {
-      list: undefined,
+      list: async () => {
+        return {
+          resources: CONDITIONS.map((condition) => ({
+            uri: `weather://clothing/${condition}`,
+            name: `clothing-${condition}`,
+            title: `Clothing for ${condition.charAt(0).toUpperCase() + condition.slice(1)} Weather`,
+            description: `Clothing recommendations for ${condition} weather conditions`,
+            mimeType: "text/markdown",
+          })),
+        };
+      },
       complete: {
         condition: (value) => {
           return CONDITIONS.filter((cond) =>
