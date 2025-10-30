@@ -15,3 +15,6 @@ dist/
 
 # Tools
 .claude/
+
+# LLM Docs
+*.txt
