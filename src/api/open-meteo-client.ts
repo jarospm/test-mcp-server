@@ -8,7 +8,7 @@
 import {
   OpenMeteoCurrentResponse,
   OpenMeteoForecastResponse,
-} from "../types.js";
+} from "../tools/types.js";
 
 const OPEN_METEO_BASE_URL = "https://api.open-meteo.com/v1/forecast";
 

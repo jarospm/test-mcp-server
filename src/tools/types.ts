@@ -1,3 +1,7 @@
+/**
+ * Type definitions and Zod schemas for weather tools
+ */
+
 import { z } from "zod";
 
 // Zod schemas for tool inputs

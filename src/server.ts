@@ -13,26 +13,19 @@ export function createServer(): McpServer {
   });
 
   // Register weather tools
-  server.tool(
-    "get_current_weather",
-    weatherTools.get_current_weather.description,
-    weatherTools.get_current_weather.inputSchema,
-    weatherTools.get_current_weather.handler
-  );
+  for (const [name, tool] of Object.entries(weatherTools)) {
+    server.tool(name, tool.description, tool.inputSchema, tool.handler);
+  }
 
-  server.tool(
-    "get_forecast",
-    weatherTools.get_forecast.description,
-    weatherTools.get_forecast.inputSchema,
-    weatherTools.get_forecast.handler
-  );
+  // Register clothing resources
+  for (const [name, resource] of Object.entries(clothingResources)) {
+    server.resource(name, resource.template, resource.metadata, resource.handler);
+  }
 
-
-  // TODO(human): Register resources and prompts
-  // Iterate over clothingResources and whatToWearPrompts to register them with the server
-  // Use Object.entries() to iterate over the exported objects
-  // For resources: call server.registerResource(name, resource.template, resource.metadata, resource.handler)
-  // For prompts: call server.registerPrompt(name, prompt.metadata, prompt.handler)
+  // Register what-to-wear prompts
+  for (const [name, prompt] of Object.entries(whatToWearPrompts)) {
+    server.prompt(name, prompt.description, prompt.argsSchema, prompt.handler);
+  }
 
   return server;
 }

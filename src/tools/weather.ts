@@ -3,7 +3,7 @@ import { getCurrentWeather, getForecast } from "../api/open-meteo-client.js";
 import {
   OpenMeteoCurrentResponse,
   OpenMeteoForecastResponse,
-} from "../types.js";
+} from "./types.js";
 
 /**
  * Converts WMO weather code to human-readable description

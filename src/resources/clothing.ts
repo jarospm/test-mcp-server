@@ -2,18 +2,7 @@
  * Clothing recommendation data for different weather conditions
  */
 
-export interface ClothingRecommendation {
-  condition: string;
-  temperature: string;
-  layers: string[];
-  accessories: string[];
-  footwear: string[];
-  tips: string[];
-}
-
-export interface WeatherConditions {
-  [condition: string]: ClothingRecommendation;
-}
+import { WeatherConditions } from "./types.js";
 
 export const CLOTHING_DATA: WeatherConditions = {
   hot: {

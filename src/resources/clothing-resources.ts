@@ -4,24 +4,7 @@
 
 import { ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { CONDITIONS, formatClothingAsMarkdown } from "./clothing.js";
-
-/**
- * Resource definition structure matching the tools pattern
- */
-interface ResourceDefinition {
-  template: ResourceTemplate;
-  metadata: {
-    title: string;
-    description: string;
-  };
-  handler: (uri: URL, variables: Record<string, unknown>) => Promise<{
-    contents: Array<{
-      uri: string;
-      mimeType: string;
-      text: string;
-    }>;
-  }>;
-}
+import { ResourceDefinition } from "./types.js";
 
 /**
  * Clothing recommendations resource exports
